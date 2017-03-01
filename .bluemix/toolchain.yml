@@ -1,0 +1,67 @@
+version: '2'
+devlocales:
+  $ref: locales.yml
+template:
+  name: OPS-maven-nexus-scenario3
+  description: OPS-maven-nexus-scenario3
+  required:
+    - ops-app-build
+    - ops-app-repo
+  info:
+    git url: >-
+      [https://github.com/paulweb515/ops-maven-toolchain](https://github.com/paulweb515/ops-maven-toolchain)
+    git branch: '[master](https://github.com/paulweb515/ops-maven-toolchain/tree/master)'
+toolchain:
+  name: 'OPS-maven-scenario3-{{timestamp}}'
+services:
+    ops-app-build:
+      parameters:
+          services:
+            - ops-app-repo
+          name: 'app-{{toolchain.name}}'
+          configuration:
+            content:
+              $ref: app.pipeline.yml
+              $refType: text
+            env:
+              CF_APP_NAME: '{{form.pipeline.parameters.prod-app-name}}'
+              QA_SPACE_NAME: '{{form.pipeline.parameters.qa-space}}'
+              QA_ORG_NAME: '{{form.pipeline.parameters.qa-organization}}'
+              QA_REGION_ID: '{{form.pipeline.parameters.qa-region}}'
+              PROD_SPACE_NAME: '{{form.pipeline.parameters.prod-space}}'
+              PROD_ORG_NAME: '{{form.pipeline.parameters.prod-organization}}'
+              PROD_REGION_ID: '{{form.pipeline.parameters.prod-region}}'
+              APP_REPO: ops-app-repo
+            execute: true
+      service_id: pipeline
+    ops-app-repo:
+      parameters:
+        has_issues: true
+        repo_name: '{{form.githubpublic.parameters.app-repo_name}}'
+        repo_url: '{{form.githubpublic.parameters.app-repo_url}}'
+        type: clone
+      service_id: githubpublic
+    maven-nexus:
+      parameters:
+        dashboard_url: https://nexus3.mybluemix.net/
+        label: maven-nexus
+        mirror_url: https://nexus3.mybluemix.net/repository/maven-public
+        name: maven-nexus
+        release_url: https://nexus3.mybluemix.net/repository/maven-releases
+        snapshot_url: https://nexus3.mybluemix.net/repository/maven-snapshots
+        type: maven
+      service_id: nexus
+form:
+  pipeline:
+    parameters:
+      qa-space: qa
+      prod-space: prod
+      prod-app-name: "{{services.ops-app-repo.parameters.repo_name}}"
+    schema:
+      $ref: deploy.json
+  githubpublic:
+    parameters:
+      app-repo_name: 'app-{{toolchain.name}}'
+      app-repo_url: 'https://github.com/open-toolchain/ops-maven-example.git'
+    schema:
+      $ref: github.json

@@ -1,0 +1,75 @@
+---
+stages:
+- name: OPS retrieve from maven repository
+  inputs:
+  - service: ${APP_REPO}
+    type: git
+    branch: master
+  triggers:
+  - type: commit
+  jobs:
+  - name: Retrieve
+    type: builder
+    extension_id: ibm.devops.services.pipeline.maven.build.deploy
+    SERVICE_INSTANCE: (default)
+    BUILD_COMMAND: "#!/bin/bash\n# environment variables are available:\n# MAVEN_NAME:\
+      \ name of the service instance\n# MAVEN_USER_ID: userid for the maven repository\n\
+      # MAVEN_TOKEN: the token or password for the maven repository\n# MAVEN_SNAPSHOT_URL:\
+      \ the maven snapshot repository\n# MAVEN_RELEASE_URL: the maven release repository\n\
+      # MAVEN_MIRROR_URL: the maven mirror repository\n# The settings.xml is available\
+      \ in /tmp/settings.xml\n# The name of the snapshots repository is 'snapshots'\n\
+      # The name of the release repository is 'releases'\n# The name of the mirror\
+      \ repository is 'central'\n\nmvn -s /tmp/settings.xml -B clean package \n\n"
+    SERVICE_INSTANCE_TYPE: nexus
+- name: Deploy [QA]
+  inputs:
+  - type: job
+    stage: OPS retrieve from maven repository
+    job: Retrieve
+  triggers:
+  - type: stage
+  jobs:
+  - name: Deploy
+    type: deployer
+    target:
+      region_id: ${QA_REGION_ID}
+      organization: ${QA_ORG_NAME}
+      space: ${QA_SPACE_NAME}
+      application: ${CF_APP_NAME}
+    script: |
+      #!/bin/bash
+
+      cf push qa-"${CF_APP}" --hostname qa-"${CF_APP}" -m 512M -p target/hello-world.war
+- name: System Test [QA]
+  inputs:
+  - type: job
+    stage: OPS retrieve from maven repository
+    job: Retrieve
+  triggers:
+  - type: stage
+  jobs:
+  - name: Test
+    type: tester
+    script: |-
+      #!/bin/bash
+
+      # system test with some curls
+- name: Deploy [PROD]
+  inputs:
+  - type: job
+    stage: OPS retrieve from maven repository
+    job: Retrieve
+  triggers:
+  - enabled: false
+  jobs:
+  - name: Deploy
+    type: deployer
+    target:
+      region_id: ${PROD_REGION_ID}
+      organization: ${PROD_ORG_NAME}
+      space: ${PROD_SPACE_NAME}
+      application: ${CF_APP_NAME}
+    script: |
+      #!/bin/bash
+
+      cf push "${CF_APP}" --hostname "${CF_APP}" -m 256M -p hello-world-1.0.0-SNAPSHOT.war
