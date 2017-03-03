@@ -72,4 +72,4 @@ stages:
     script: |
       #!/bin/bash
 
-      cf push "${CF_APP}" --hostname "${CF_APP}" -m 256M -p hello-world-1.0.0-SNAPSHOT.war
+      cf push "${CF_APP}" --hostname "${CF_APP}" -m 256M -p target/hello-world.war
