@@ -9,8 +9,8 @@ template:
     - ops-app-repo
   info:
     git url: >-
-      [https://github.com/paulweb515/ops-maven-toolchain](https://github.com/paulweb515/ops-maven-toolchain)
-    git branch: '[master](https://github.com/paulweb515/ops-maven-toolchain/tree/master)'
+      [https://github.com/open-toolchain/ops-maven-toolchain](https://github.com/open-toolchain/ops-maven-toolchain)
+    git branch: '[master](https://github.com/open-toolchain/ops-maven-toolchain/tree/master)'
 toolchain:
   name: 'OPS-maven-scenario3-{{timestamp}}'
 services:
