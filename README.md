@@ -1,6 +1,6 @@
 # Maven using Nexus OPS Toolchain
 
-This Hello World application uses Node.js and includes a DevOps toolchain that is preconfigured for continuous delivery, source control, and 
+This Hello World application uses Java and includes a DevOps toolchain that is preconfigured for continuous delivery, source control, and 
 integration with a user-provided Nexus server. The OPS toolchain expects to find the modules in the Nexus server, provided by 
 the [Maven using Nexus Development Toolchain](https://github.com/open-toolchain/dev-maven-toolchain).
 
